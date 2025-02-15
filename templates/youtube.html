@@ -89,6 +89,10 @@
             <button type="submit" id="downloadBtn">DEHLE</button>
             <div class="loader" id="loader"></div>
         </form>
+    <div class="progress-container">
+    <progress id="progressBar" value="0" max="100"></progress>
+    <p id="progressText">İndirme durumu bekleniyor...</p>
+</div>
 
         <div class="history" id="historySection">
             <h3>İndirme Geçmişi</h3>
@@ -97,21 +101,7 @@
         <div class="qr-code" id="qrCodeContainer"></div>
     </div>
     <script>
-        function startDownload(event) {
-            event.preventDefault();
-            let url = document.getElementById('url').value;
-            if (!url) return;
 
-            document.getElementById('downloadBtn').textContent = 'İndiriliyor...';
-            document.getElementById('downloadBtn').disabled = true;
-            document.getElementById('loader').style.display = 'block';
-
-            setTimeout(() => {
-                addHistory(url);
-                generateQRCode(url);
-                event.target.submit();
-            }, 500);
-        }
 
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
@@ -146,6 +136,28 @@
             qrContainer.appendChild(img);
             qrContainer.style.display = 'block';
         }
+
+          function updateProgress() {
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                let progressBar = document.getElementById('progressBar');
+                let progressText = document.getElementById('progressText');
+
+                if (data.status === "downloading") {
+                    let percent = parseFloat(data.percent.replace('%', ''));
+                    progressBar.value = percent;
+                    progressText.textContent = `İndirme devam ediyor: ${data.percent}`;
+                } else if (data.status === "finished") {
+                    progressBar.value = 100;
+                    progressText.textContent = "İndirme tamamlandı!";
+                } else if (data.status === "error") {
+                    progressText.textContent = "İndirme sırasında hata oluştu!";
+                }
+            })
+            .catch(error => console.error("Progress fetch error:", error));
+    }
+    setInterval(updateProgress, 1000);
     </script>
 </body>
 </html>
