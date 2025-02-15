@@ -7,7 +7,7 @@ app = Flask(__name__)
 # Configure download and cache directories
 DOWNLOAD_FOLDER = os.path.join(app.instance_path, 'downloads')
 CACHE_FOLDER = os.path.join(app.instance_path, 'yt-dlp-cache')
-COOKIE_FILE_PATH = '/mnt/disks/youtube-cookies/youtube.com_cookies.txt'  # Update for Render!
+COOKIE_FILE_PATH = 'youtube.com_cookies.txt'  # Update for Render!
 
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 os.makedirs(CACHE_FOLDER, exist_ok=True)
