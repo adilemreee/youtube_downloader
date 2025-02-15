@@ -16,24 +16,7 @@ os.makedirs(CACHE_FOLDER, exist_ok=True)
 
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
-download_progress = {"status": "idle", "percent": 0}
-def progress_hook(d):
-    """ İndirme ilerleme durumunu günceller. """
-    global progress_data
-    if d['status'] == 'downloading':
-        percent = d['_percent_str'].strip()
-        progress_data["status"] = "downloading"
-        progress_data["percent"] = percent
-        print(f"İndirme devam ediyor: {percent}")
 
-    elif d['status'] == 'finished':
-        progress_data["status"] = "finished"
-        progress_data["percent"] = "100%"
-        print("İndirme tamamlandı!")
-@app.route("/progress")
-def progress():
-    """İndirme ilerlemesini JSON olarak döndür."""
-    return jsonify(download_progress)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -45,14 +28,12 @@ def home():
 def youtube():
     if request.method == "POST":
         url = request.form.get("url")
-        global download_progress
-        download_progress = {"status": "downloading", "percent": "0%"}
+
         try:
             ydl_opts = {
                 'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
                 'merge_output_format': 'mp4',
                 'outtmpl': os.path.join(app.config['DOWNLOAD_FOLDER'], '%(title)s.%(ext)s'),
-                'progress_hooks': [progress_hook],
                 'noplaylist': True,
                 'cachedir': CACHE_FOLDER,
                 'cookiefile': COOKIE_FILE_PATH  # Use the cookies
@@ -62,8 +43,7 @@ def youtube():
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
                 filename = get_downloaded_filename(ydl, url)
-                download_progress["status"] = "finished"
-                download_progress["percent"] = "100%"
+
                 if filename:
                     return redirect(url_for('download_file', filename=filename))
                 else:
@@ -82,14 +62,12 @@ def youtube():
 def instagram():
     if request.method == "POST":
         url = request.form.get("url")
-        global download_progress
-        download_progress = {"status": "downloading", "percent": "0%"}
+
         try:
             ydl_opts = {
                 'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',  # Similar format selection
                 'merge_output_format': 'mp4',
                 'outtmpl': os.path.join(app.config['DOWNLOAD_FOLDER'], '%(title)s.%(ext)s'), # Output filename
-                'progress_hooks': [progress_hook],
                 # You likely don't need 'noplaylist' for Instagram
                 'cachedir': CACHE_FOLDER,
                 'cookiefile': COOKIE_FILE_PATH2 #  Important: Use cookies if necessary for Instagram
@@ -98,8 +76,7 @@ def instagram():
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
                 filename = get_downloaded_filename(ydl, url)
-                download_progress["status"] = "finished"
-                download_progress["percent"] = "100%"
+
                 if filename:
                     return redirect(url_for('download_file', filename=filename)) # Redirect to download
                 else:
