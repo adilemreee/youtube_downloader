@@ -8,6 +8,7 @@ app = Flask(__name__)
 DOWNLOAD_FOLDER = os.path.join(app.instance_path, 'downloads')
 CACHE_FOLDER = os.path.join(app.instance_path, 'yt-dlp-cache')
 COOKIE_FILE_PATH = 'youtube.com_cookies.txt'  # Update for Render!
+COOKIE_FILE_PATH2 = 'instagram.com_cookies.txt'
 
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 os.makedirs(CACHE_FOLDER, exist_ok=True)
@@ -15,8 +16,15 @@ os.makedirs(CACHE_FOLDER, exist_ok=True)
 
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
-@app.route("/", methods=["GET", "POST"])
-def index():
+
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("home.html")  # Ana sayfa (Platform Seçme)
+
+
+
+@app.route("/youtube", methods=["GET", "POST"])
+def youtube():
     if request.method == "POST":
         url = request.form.get("url")
         try:
@@ -42,9 +50,41 @@ def index():
         except Exception as e:
             print(f"Download error: {e}")
             error_message = f"Download error: {e}"
-            return render_template("index.html", error=error_message)
+            return render_template("youtube.html", error=error_message)
 
-    return render_template("index.html")
+    return render_template("youtube.html")
+
+
+
+@app.route("/instagram", methods=["GET", "POST"])
+def instagram():
+    if request.method == "POST":
+        url = request.form.get("url")
+        try:
+            ydl_opts = {
+                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',  # Similar format selection
+                'merge_output_format': 'mp4',
+                'outtmpl': os.path.join(app.config['DOWNLOAD_FOLDER'], '%(title)s.%(ext)s'), # Output filename
+                'progress_hooks': [progress_hook],
+                # You likely don't need 'noplaylist' for Instagram
+                'cachedir': CACHE_FOLDER,
+                'cookiefile': COOKIE_FILE_PATH2 #  Important: Use cookies if necessary for Instagram
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([url])
+                filename = get_downloaded_filename(ydl, url)
+                if filename:
+                    return redirect(url_for('download_file', filename=filename)) # Redirect to download
+                else:
+                    raise ValueError("Could not determine downloaded filename.")
+
+        except Exception as e:
+            print(f"Instagram download error: {e}")
+            error_message = f"Instagram download error: {e}"
+            return render_template("instagram.html", error=error_message)  # Render Instagram error template
+
+    return render_template("instagram.html") # Render Instagram input form
 
 def progress_hook(d):
     if d['status'] == 'downloading':

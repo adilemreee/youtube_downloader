@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Video İndirici</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .youtube-btn {
+            background-color: #ff0000;
+            color: white;
+        }
+        .youtube-btn:hover {
+            background-color: #cc0000;
+        }
+        .instagram-btn {
+            background-color: #fcaf45;
+            color: white;
+        }
+        .instagram-btn:hover {
+            background-color: #e79b38;
+        }
+        .dark-mode-btn {
+            background-color: #222;
+            color: white;
+            margin-top: 10px;
+        }
+        .dark-mode-btn:hover {
+            background-color: #444;
+        }
+        .dark-mode {
+            background-color: #222;
+            color: white;
+        }
+        .dark-mode .container {
+            background: #333;
+            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Ahrazlar Video Dehleme</h1>
+        <p>Hangi platformdan video dehlemek istiyorsunuz?</p>
+        <a href="{{ url_for('youtube') }}"><button class="youtube-btn">Youtube Video dehle</button></a>
+        <a href="{{ url_for('instagram') }}"><button class="instagram-btn">İnstagram Video dehle</button></a>
+
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+    </script>
+
+</body>
+</html>
