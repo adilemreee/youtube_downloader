@@ -7,9 +7,11 @@ app = Flask(__name__)
 # Configure download and cache directories
 DOWNLOAD_FOLDER = os.path.join(app.instance_path, 'downloads')
 CACHE_FOLDER = os.path.join(app.instance_path, 'yt-dlp-cache')
+COOKIE_FILE_PATH = '/mnt/disks/youtube-cookies/youtube.com_cookies.txt'  # Update for Render!
 
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 os.makedirs(CACHE_FOLDER, exist_ok=True)
+
 
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
@@ -20,40 +22,36 @@ def index():
         try:
             ydl_opts = {
                 'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                'merge_output_format': 'mp4', # Merge audio and video into mp4
+                'merge_output_format': 'mp4',
                 'outtmpl': os.path.join(app.config['DOWNLOAD_FOLDER'], '%(title)s.%(ext)s'),
                 'progress_hooks': [progress_hook],
                 'noplaylist': True,
-                'cachedir': CACHE_FOLDER
+                'cachedir': CACHE_FOLDER,
+                'cookiefile': COOKIE_FILE_PATH  # Use the cookies
             }
+
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
-
-                # Get filename (improved error handling)
                 filename = get_downloaded_filename(ydl, url)
                 if filename:
                     return redirect(url_for('download_file', filename=filename))
                 else:
-                    raise ValueError("Could not determine downloaded filename.")  # More specific error
+                    raise ValueError("Could not determine downloaded filename.")
 
         except Exception as e:
-            print(f"Download error: {e}")  # Log the error for debugging
-            error_message = f"Download error: {e}" # Display error to user
+            print(f"Download error: {e}")
+            error_message = f"Download error: {e}"
             return render_template("index.html", error=error_message)
 
     return render_template("index.html")
-
-
 
 def progress_hook(d):
     if d['status'] == 'downloading':
         print(f"Downloading: {d['_percent_str']} of {d['_total_bytes_str']}")
 
 
-
 def get_downloaded_filename(ydl, url):
-    """Improved filename retrieval with error handling."""
     try:
         info_dict = ydl.extract_info(url, download=False)
         filename = ydl.prepare_filename(info_dict)
