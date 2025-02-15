@@ -5,21 +5,147 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Downloader</title>
     <style>
-        body {font-family: sans-serif; margin: 20px;}
-        form {display: flex; flex-direction: column; max-width: 400px;}
-        input[type="text"] {padding: 10px; margin-bottom: 10px;}
-        input[type="submit"] {padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;}
-        .error {color: red;}
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            transition: background 0.3s ease;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #45a049; }
+        .error { color: red; }
+        .loader {
+            display: none;
+            margin-top: 10px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .dark-mode {
+            background-color: #222;
+            color: white;
+        }
+        .video-preview {
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+        .history {
+            margin-top: 20px;
+            text-align: left;
+            display: none;
+        }
+        .qr-code {
+            margin-top: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>YouTube Downloader</h1>
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
-    <form method="post">
-        <input type="text" name="url" placeholder="Enter YouTube URL" required>
-        <input type="submit" value="Download">
-    </form>
+    <div class="container">
+        <h1>YouTube Video Dehlemesi</h1>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="post" onsubmit="startDownload(event)">
+            <input type="text" id="url" name="url" placeholder="SERİ LİNK" required oninput="previewVideo()">
+            <div class="video-preview" id="videoPreview"></div>
+            <button type="submit" id="downloadBtn">DEHLE</button>
+            <div class="loader" id="loader"></div>
+        </form>
+
+        <div class="history" id="historySection">
+            <h3>İndirme Geçmişi</h3>
+            <ul id="historyList"></ul>
+        </div>
+        <div class="qr-code" id="qrCodeContainer"></div>
+    </div>
+    <script>
+        function startDownload(event) {
+            event.preventDefault();
+            let url = document.getElementById('url').value;
+            if (!url) return;
+
+            document.getElementById('downloadBtn').textContent = 'İndiriliyor...';
+            document.getElementById('downloadBtn').disabled = true;
+            document.getElementById('loader').style.display = 'block';
+
+            setTimeout(() => {
+                addHistory(url);
+                generateQRCode(url);
+                event.target.submit();
+            }, 500);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function previewVideo() {
+            let url = document.getElementById('url').value;
+            let preview = document.getElementById('videoPreview');
+            if (url.includes("youtube.com/watch?v=")) {
+                let videoId = url.split('v=')[1].split('&')[0];
+                preview.innerHTML = `<img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" width="100%"><p>Video Preview</p>`;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function addHistory(url) {
+            let historySection = document.getElementById('historySection');
+            let historyList = document.getElementById('historyList');
+            let listItem = document.createElement('li');
+            listItem.textContent = url;
+            historyList.appendChild(listItem);
+            historySection.style.display = 'block';
+        }
+
+        function generateQRCode(url) {
+            let qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = '';
+            let img = document.createElement('img');
+            img.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(url)}`;
+            qrContainer.appendChild(img);
+            qrContainer.style.display = 'block';
+        }
+    </script>
 </body>
 </html>
