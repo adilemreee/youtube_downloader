@@ -3,4 +3,4 @@ yt-dlp
 gunicorn
 # Flask
 pytube
-request
+requests
