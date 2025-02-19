@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Downloader</title>
-       <style>
+    <title>İnstagram Downloader</title>
+    <style>
         body {
             font-family: sans-serif;
             margin: 20px;
@@ -76,24 +76,29 @@
             display: none;
         }
     </style>
+</head>
 <body>
-<body>
-    <h1>İNSTAGRAM VİDEO DEHLEYİCİ</h1>
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>  <!-- Display errors -->
-    {% endif %}
-    <form method="post">
-        <input type="text" name="url" placeholder="LİNK DEHLE" required>
-        <button type="submit">DEHLE</button>
-    </form>
+    <div class="container">
+        <h1>İnstagram Video Dehlemesi</h1>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="post" onsubmit="startDownload(event)">
+            <input type="text" id="url" name="url" placeholder="SERİ LİNK" required oninput="previewVideo()">
+            <div class="video-preview" id="videoPreview"></div>
+            <button type="submit" id="downloadBtn">DEHLE</button>
+            <div class="loader" id="loader"></div>
+        </form>
 
 
-    <p><a href="/">Anasayfaya Dön</a></p>  <!-- Link back to YouTube page -->
 
+
+    </div>
+    <script>
+
+
+
+
+    </script>
 </body>
-</body>
-<script>
-
-</script>
-
 </html>
