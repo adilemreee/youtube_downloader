@@ -16,7 +16,10 @@ def youtube():
         try:
             ydl_opts = {
                 'format': 'best[ext=mp4]/best',
-                'noplaylist': True
+                'noplaylist': True,
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -44,7 +47,11 @@ def instagram():
         url = request.form.get("url")
         try:
             ydl_opts = {
-                'format': 'best[ext=mp4]/best'
+                'format': 'best[ext=mp4]/best',
+                'noplaylist': True,
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
